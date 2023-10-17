@@ -79,8 +79,8 @@ class ModelCheckpoint:
             trainer.save_checkpoint(model, save_path)
             
 class Monitor:
-    def __init__(self) -> None:
-        wandb.init(project="CV-BTL-1")
+    def __init__(self, model_name) -> None:
+        wandb.init(project="CV-BTL-1", name=model_name)
         
     def __call__(self, trainer: Trainer, **kwargs) -> Any:
         wandb.log({
@@ -88,4 +88,7 @@ class Monitor:
             for k, v in trainer.monitor_dict.items()
         })
     
+    def rename(self, model_name):
+        wandb.finish()
+        wandb.init(project="CV-BTL-1", name=model_name)
         

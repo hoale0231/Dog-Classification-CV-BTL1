@@ -1,6 +1,7 @@
 dataset/
 __pycache__/
 .vscode/
+wandb/
 
 *.ckpt
 *.pt
