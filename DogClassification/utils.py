@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import seaborn as sns
 import torch
-from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
 from torch.utils.data import DataLoader, RandomSampler
 import os
+import random
+from glob import glob
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 def plot_grid_images(training_set, class_names, mean, std, rows=3, columns=3, size=14):
     batch_size = rows * columns
@@ -35,3 +35,35 @@ def plot_images_per_class(images_path):
     plt.xlabel('Class')
     plt.ylabel('Number of Images')
     plt.show()
+
+def display_wrong_sample(result_dict, class_names, datapaths, std=[0.485, 0.456, 0.406], mean=[0.229, 0.224, 0.225]):
+    for model_name, (_, _, wrong_sample) in result_dict.items():
+        print(f"Wrong sample of {model_name}")
+        display_samples = random.sample(wrong_sample, 3)
+        for sample in display_samples:
+            image, pred, target = sample
+
+            fig, axs = plt.subplots(1, 5, figsize=(20, 8))
+
+            # Display the image
+            image = torch.tensor(std)*image.permute(1, 2, 0) + torch.tensor(mean)
+
+            axs[0].imshow(image)
+            axs[0].set_title("Sample")
+
+            # Display the target class image
+            target_class = random.sample(glob(f"{datapaths}/{class_names[target]}/*"), 2)
+            axs[1].imshow(mpimg.imread(target_class[0]))
+            axs[1].set_title(f"Class Target {class_names[target][10:]}")
+            axs[2].imshow(mpimg.imread(target_class[1]))
+            axs[2].set_title(f"Class Target {class_names[target][10:]}")
+
+            # Display the predicted class image
+            pred_class = random.sample(glob(f"{datapaths}/{class_names[pred]}/*"), 2)
+            axs[3].imshow(mpimg.imread(pred_class[0]))
+            axs[3].set_title(f"Class Predict {class_names[pred][10:]}")
+            axs[4].imshow(mpimg.imread(pred_class[1]))
+            axs[4].set_title(f"Class Predict {class_names[pred][10:]}")
+
+            plt.show()
+        

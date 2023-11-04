@@ -16,8 +16,8 @@ from DogClassification.model import DogClassification
 class Trainer:
     def __init__(
         self, 
-        optimizer: Optimizer,
-        scheduler: LRScheduler,
+        optimizer: Optimizer = None,
+        scheduler: LRScheduler = None,
         criterion: Module = nn.CrossEntropyLoss(), 
         epochs: int = 100,
         callbacks: List = [],
@@ -134,7 +134,7 @@ class Trainer:
                 'monitor_dict': self.monitor_dict
                 }, save_path)
           
-    def test(self, model, test_dataloader, progress = None, device = None):
+    def test(self, model, test_dataloader, device = None):
         if device:
             model = model.to(device)
         elif torch.cuda.is_available():
@@ -143,9 +143,8 @@ class Trainer:
         model.eval()
         preds = []
         trues = []
-        
-        iters = len(test_dataloader)
-        
+        wrong_sample = []
+                
         for i, (inputs, targets) in enumerate(tqdm(test_dataloader)):
             if torch.cuda.is_available() and (device != 'cpu'):
                 inputs = inputs.cuda()
@@ -157,8 +156,9 @@ class Trainer:
             preds.append(pred)
             trues.append(true)
             
-            if progress:
-                progress.progress(i/iters, text = f'{100*i/iters:.2f}%')
+            for i, (t, p) in enumerate(zip(true, pred.argmax(1))):
+                if t != p:
+                    wrong_sample.append((inputs[i].cpu(), pred[i], true[i]))
 
-        return np.concatenate(preds), np.concatenate(trues)
+        return np.concatenate(preds), np.concatenate(trues), wrong_sample
 
