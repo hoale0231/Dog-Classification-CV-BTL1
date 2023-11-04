@@ -158,7 +158,7 @@ class Trainer:
             
             for i, (t, p) in enumerate(zip(true, pred.argmax(1))):
                 if t != p:
-                    wrong_sample.append((inputs[i].cpu(), pred[i], true[i]))
+                    wrong_sample.append((inputs[i].cpu(), p, t))
 
         return np.concatenate(preds), np.concatenate(trues), wrong_sample
 
