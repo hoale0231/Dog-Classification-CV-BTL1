@@ -156,7 +156,7 @@ class Trainer:
             preds.append(pred)
             trues.append(true)
             
-            for i, (t, p) in enumerate(zip(true, pred.argmax(1))):
+            for i, (t, p) in enumerate(zip(true, pred)):
                 if t != p:
                     wrong_sample.append((inputs[i].cpu(), p, t))
 
